@@ -6,9 +6,16 @@ int main() {
 
     sf::RectangleShape player(sf::Vector2f(40.f, 40.f));
     player.setFillColor(sf::Color::Green);
-    player.setPosition(380.f, 280.f);
+    sf::Vector2f startPos(380.f, 280.f);
+    player.setPosition(startPos);
 
-    float speed = 200.f;
+    sf::RectangleShape enemy(sf::Vector2f(60.f, 60.f));
+    enemy.setFillColor(sf::Color::Red);
+    enemy.setPosition(100.f, 200.f);
+
+    float playerSpeed = 200.f;
+    float enemySpeed = 150.f;
+
     sf::Clock clock;
 
     while (window.isOpen()) {
@@ -22,13 +29,13 @@ int main() {
 
         sf::Vector2f movement(0.f, 0.f);
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-            movement.y -= speed * dt;
+            movement.y -= playerSpeed * dt;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-            movement.y += speed * dt;
+            movement.y += playerSpeed * dt;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-            movement.x -= speed * dt;
+            movement.x -= playerSpeed * dt;
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-            movement.x += speed * dt;
+            movement.x += playerSpeed * dt;
 
         player.move(movement);
 
@@ -47,8 +54,27 @@ int main() {
 
         player.setPosition(pos);
 
+        sf::Vector2f enemyPos = enemy.getPosition();
+        enemyPos.x += enemySpeed * dt;
+
+        if (enemyPos.x < 0.f) {
+            enemyPos.x = 0.f;
+            enemySpeed = -enemySpeed;
+        }
+        if (enemyPos.x + enemy.getSize().x > winSize.x) {
+            enemyPos.x = winSize.x - enemy.getSize().x;
+            enemySpeed = -enemySpeed;
+        }
+
+        enemy.setPosition(enemyPos);
+
+        if (player.getGlobalBounds().intersects(enemy.getGlobalBounds())) {
+            player.setPosition(startPos);
+        }
+
         window.clear(sf::Color::Black);
         window.draw(player);
+        window.draw(enemy);
         window.display();
     }
 
